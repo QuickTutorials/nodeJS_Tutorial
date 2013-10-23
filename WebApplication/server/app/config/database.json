@@ -1,7 +1,7 @@
 {
-    "url"     : "ds027348.mongolab.com",
-    "port"    : 27348,
-    "dbName"  : "madelavega",
-    "user"    : "madelavega",
-    "password": "wstesting"
+    "url"     : "ds051848.mongolab.com",
+    "port"    : 51848,
+    "dbName"  : "webaplication",
+    "user"    : "cursonode",
+    "password": "cursonode1"
 }
