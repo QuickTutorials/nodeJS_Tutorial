@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=UTF-8">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/vendor/angular/angular-1.1.5.js"></script>
+    <script src="build/angularjs-websocket-mongodb.js"></script>
+    <link rel="stylesheet" href="resources/css/app.css" type="text/css"/>
+</head>
+<body ng-app="app">
+<div ng-controller="UsuariosCtrl">
+    <cd-datagrid class="cd-datagrid" data="data">
+        <cd-datagrid-columns>
+            <cd-datagrid-column property="nombre" order="ASC" text="Nombre"></cd-datagrid-column>
+            <cd-datagrid-column property="apellido" text="Apellido"></cd-datagrid-column>
+            <cd-datagrid-column type="action" action="remove" text="Eliminar"></cd-datagrid-column>
+            <cd-datagrid-column type="action" action="remove" tpl="<a href='#'>Eliminar {nombre}</a>"></cd-datagrid-column>
+        </cd-datagrid-columns>
+    </cd-datagrid>
+    <br/><br/>
+
+    <form novalidate>
+        nombre: <input type="text" ng-model="usuario.nombre" required/><br/>
+        apellido: <input ng-model="usuario.apellido" required/><br/>
+        nif: <input type="text" ng-model="usuario.nif"/><br/>
+        <button ng-click="reset()">Resetear</button>
+        <button ng-click="save(usuario)" ng-disabled="form.$invalid">Guardar</button>
+    </form>
+</div>
+</body>
+</html>

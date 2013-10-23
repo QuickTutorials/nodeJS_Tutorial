@@ -1,0 +1,11 @@
+managers.json
+    route messages with manager path. Each property of the config object will be the message that will be sended
+    by the client. The value will be the relative path (from app/managers) of its manager.
+
+database.json
+    configuration file for the MongoDB connection with MongoLabs:
+        - port     : connection port
+        - url      : url from mongolabs
+        - dbName   : database name
+        - user     : database user
+        - password : user's password
