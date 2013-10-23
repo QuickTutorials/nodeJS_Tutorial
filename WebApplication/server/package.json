@@ -1,5 +1,5 @@
 {
-    "name"        : "angular-ws-mongodb",
+    "name"        : "webApplicationServer",
     "version"     : "0.0.1",
     "dependencies": {
         "socket.io": ">= 0.9.16",
