@@ -1,7 +1,7 @@
 {
     "url"     : "ds051848.mongolab.com",
     "port"    : 51848,
-    "dbName"  : "webaplication",
+    "dbName"  : "webapplication",
     "user"    : "cursonode",
     "password": "cursonode1"
 }
