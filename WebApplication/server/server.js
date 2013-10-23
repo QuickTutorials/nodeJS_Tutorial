@@ -6,7 +6,7 @@ var express = require('express'),
     path = require('path'),
     Controller;
 
-server.listen(package.json);
+server.listen(process.env.PORT);
 
 app.get('/', function (req, res) {
     "use strict";
