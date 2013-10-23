@@ -50,7 +50,7 @@ To run the server, you must go to the server path and run the server.js with nod
 There are different files to configure the application:
 
 ###server/config.json: 
-this file configure the server basics. At the moment, only configre the port where application will listen. If you wanna deploy the application usin <a target="_blank" href="https://c9.io">https://c9.io</a>, you must change the port number (default to 8888) by process.env.PORT</li>
+this file configure the server basics. At the moment, only configre the port where application will listen. If you wanna deploy the application usin <a target="_blank" href="https://c9.io">https://c9.io</a>, you must set the port number to process.env.PORT</li>
         
 ###server/app/config/database.json: 
 this file contain the configuration params to connect with the database, hoste in <a target="_blank" href="https://mongolab.com/welcome/">https://mongolab.com/welcome/</a></li>
