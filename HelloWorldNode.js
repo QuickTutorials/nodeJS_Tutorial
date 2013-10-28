@@ -1,2 +1,2 @@
-// Call the console.log function.
+// Testing call the console.log function.
 console.log("Hello World");
