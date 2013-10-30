@@ -13,7 +13,7 @@ First at all, we are going to build the front side of the application. What migh
 - With css preprocessors
 - And maybe others...
 
-All of these features, and many others, are provided by GruntJS. But... What is Grunt? It's a task runner, a NodeJS application that provied automation, that are managed by npm. Further reading in http://gruntjs.com/.
+All of these features, and many others, are provided by GruntJS. But... What is Grunt? It's a task runner, a NodeJS application that provied automation, that are managed by npm. Further reading in the <a target="_blank" href="http://gruntjs.com">GruntJS site</a>.
 
 To start usgin grunt, we need need install locally grunt dependencies located at client/package.json with the following command:
 
@@ -48,16 +48,15 @@ You could execute more taks, for example:
 - grunt test : to execute sintax validatiosn and jasmine testing
 - grunt stylus: to generate your css files
     
-or install and configure new plugins... You only must go to the plugin listing (http://gruntjs.com/plugins) and get all you need, all provided by GruntJS and nodeJS
-
+or install and configure new plugins... You only must go to the <a target="_blank" href="http://gruntjs.com/plugins">grunt plugin listing</a> and get all you need, all provided by GruntJS and nodeJS
     
 ##Prepare server side
 
 Before run the server side, you must install node dependencies, as in the client side. These dependencies are located in server/package.json:
 
-- mongodb: to connect with the database
+- mongodb: to connect with the mongo database
 - socket.io: for the websocket's support
-- express: web framework for nodej
+- express: web framework for nodejs
 - q: for the javascript promises support
 
 For the dependencies intallation, go to server path and run the following command:
@@ -66,18 +65,15 @@ For the dependencies intallation, go to server path and run the following comman
     
 It will install those dependencies
 
+##Server config files
+
+There are different files to configure the application:
+
+###server/app/config/database.json: 
+this file contains the configuration params to connect with the database, hosted in <a target="_blank" href="https://mongolab.com/welcome/">https://mongolab.com/welcome/</a></li>
+
 ##Running the server
 
 To run the server, you must go to the server path and run the server.js with node
 
     node server.js
-
-##Server config
-
-There are different files to configure the application:
-
-###server/config.json: 
-this file configure the server basics. At the moment, only configre the port where application will listen. If you wanna deploy the application usin <a target="_blank" href="https://c9.io">https://c9.io</a>, you must set the port number to process.env.PORT</li>
-        
-###server/app/config/database.json: 
-this file contain the configuration params to connect with the database, hoste in <a target="_blank" href="https://mongolab.com/welcome/">https://mongolab.com/welcome/</a></li>
