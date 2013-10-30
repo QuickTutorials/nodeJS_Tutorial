@@ -72,8 +72,45 @@ There are different files to configure the application:
 ###server/app/config/database.json: 
 this file contains the configuration params to connect with the database, hosted in <a target="_blank" href="https://mongolab.com/welcome/">https://mongolab.com/welcome/</a></li>
 
+###server/app/config/managers.json: 
+this file maps the different websocket event keys to the correct manager.
+
 ##Running the server
 
 To run the server, you must go to the server path and run the server.js with node
 
     node server.js
+    
+But... Wait a minute! Where I configure my websocket connection? I forgot it! No problem, you only need to go to your package.json in your client path, and set your host and port in the wsServer property. For example:
+
+    "wsServer"       : "ws://localhost:8888"
+
+Then you will need to run grunt command again. But... how my connection javascript module knows that needs to get this value from the package.json file? It is simple. In the client/js/common/services/socketioConnection.js you have this line:
+
+    connection = io.connect('<%= pkg.wsServer %>')
+    
+Yes! When you run grunt, you coult treat the javascript files as templates, setting the proccess property to true, for example in the concat configuration plugin:
+
+     concat : {
+            options: {
+                separator: "\n",
+                process : true   //treating js files as templates!
+            },
+            dist   : {
+                files: [
+                    {
+                        src : [
+                            "js/common/**/*.js",
+                            "js/app.js",
+                            "js/app/**/*.js"
+                        ],
+                        dest: "build/<%= pkg.name %>.js"
+                    }
+                ]
+            }
+        }
+     
+This is another interesting trick with grunt. 
+
+And it is all! You are runnning your server and you could go to your favourite web browser and run the applicacion typing http://application_host:application_port! I am sorry, it is not work on IE < 10... ups! I told you your FAVOURITE web browser!! I do not think you test it on IE<10 ;)
+
