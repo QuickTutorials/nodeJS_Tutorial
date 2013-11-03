@@ -1,7 +1,3 @@
-THIS PROJECT IS JUST A PROTOTYPE (but it fully works, including all examples explained here).!!
-
-Name is inspired in the stem cells which can convert them selfs into any other specialized cells (just like stem server templates :)).
-
 Stem.js its a command line interface tool, written in node.js to dynamically create/define/clone templates of other node.js servers. This means that you configure several templates applyting configuration files to them, and you can generate a nodejs server file which is launched with Forever!
 
 ## Installation 
