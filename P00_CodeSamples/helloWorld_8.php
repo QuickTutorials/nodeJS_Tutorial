@@ -10,9 +10,9 @@
 	$message = 'I am writing to inform you of a...';
 	$count = 0;
 
-	foreach($addresses as $sucker) {
+	foreach($addresses as $person) {
 	    // Attempt to send email.
-	  if (mail($sucker, 'New opportunity', $message)) {
+	  if (mail($person, 'New opportunity', $message)) {
 	    $count++;
 	  }
 	}

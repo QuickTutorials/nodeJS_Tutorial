@@ -6,9 +6,9 @@ var message = 'I am writing to inform you of a...';
 
 var count = 0;
 
-addresses.forEach(function(sucker, i) {
+addresses.forEach(function(person, i) {
 	// Attempt to send email.
-	mail(sucker, 'New opportunity', message, function(err) {
+	mail(person, 'New opportunity', message, function(err) {
 		if (!err) {
 			count++;
 		}
