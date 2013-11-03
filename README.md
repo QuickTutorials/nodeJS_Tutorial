@@ -1,19 +1,27 @@
-                  _        _     
-                 | |      (_)    
-  _ __   ___   __| | ___   _ ___ 
- | '_ \ / _ \ / _` |/ _ \ | / __|
- | | | | (_) | (_| |  __/_| \__ \
- |_| |_|\___/ \__,_|\___(_) |___/
-                         _/ |    
-                        |__/     
+                  _        _     <br/>
+                 | |      (_)    <br/>
+  _ __   ___   __| | ___   _ ___ <br/>
+ | '_ \ / _ \ / _` |/ _ \ | / __|<br/>
+ | | | | (_) | (_| |  __/_| \__ \<br/>
+ |_| |_|\___/ \__,_|\___(_) |___/<br/>
+                         _/ |    <br/>
+                        |__/     <br/>
 
-An introductory nodeJS tutorial
+<h1>Curso introductorio a NodeJS | Noviembre 2013</h1>
 
-★ Are you crazy? Javascript on server side?
-★ Benchmarking: Apache vs Node.js
-★ Modules, packages, ...
-★ Programming Theory: 
-★ Event Driven, Concurrency & non blocking model
-★ Developing and debugging with Eclipse
-★ Other IDE
+<ul>
+<li>★ ¿Javascript en el lado del servidor? Ideas y principios de Node.js</li>
+★ Benchmarking: Apache vs Node.js 
+★ Teoría de la programación en Javascript
 ★ Javascript, V8 and ECMA
+★ JSON = JS Object Notation
+★ Event Driven, Concurrency & non blocking model 
+★ Instalando node.js
+★ Modules, packages, ... NPM
+★ Developing and debugging with Eclipse
+★ Otro IDE… en la nube
+★ El estado del arte
+★ Referencias y documentación
+<ul>
+
+BEEVA | www.beeva.com
