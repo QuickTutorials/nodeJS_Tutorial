@@ -1,2 +1,3 @@
-// Call the console.log function.
-console.log("Hello World");
+// Testing call the console.log function with module colors
+require('colors');
+console.log('Hello World'.rainbow);

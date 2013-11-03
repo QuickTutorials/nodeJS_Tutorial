@@ -1,11 +1,4 @@
-                __        ______
-  ___  ___  ___/ /__  __ / / __/
- / _ \/ _ \/ _  / -_)/ // /\ \  
-/_//_/\___/\_,_/\__(_)___/___/  
-                                
-
-
-<h1>Curso introductorio a NodeJS | Noviembre 2013</h1>
+<h1>Curso introductorio a NodeJS</h1>
 
 <ul>
 <li>¿Javascript en el lado del servidor? Ideas y principios de Node.js</li>
@@ -23,3 +16,4 @@
 <ul>
 
 BEEVA | www.beeva.com
+Noviembre 2013
