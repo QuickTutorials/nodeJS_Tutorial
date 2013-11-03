@@ -1,0 +1,6 @@
+{
+	"CONF_FILENAME": "counter.txt",
+	"CONNECTION_LISTENER": "connection_listener",
+	"CONF_PORT": 8080,
+	"MESSAGE": "Hola mundito!"
+}

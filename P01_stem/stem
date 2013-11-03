@@ -1,0 +1,475 @@
+#!/usr/bin/env node
+
+// you need to have sqlite3 and  commander libraries
+try{
+  var sqlite3 = require('sqlite3').verbose();
+  var db = new sqlite3.Database('db.sqlite3');
+  var program = require('commander');
+  var colors = require('colors');
+  var fs = require("fs");
+}
+catch(err){
+  console.log(err.rainbow);
+  process.exit(-1);
+}
+
+/***** DB setup *****/
+db.serialize(function() {
+  db.run("CREATE TABLE IF NOT EXISTS server (ser_name varchar(10), ser_state varchar(10))");
+  db.run("CREATE TABLE IF NOT EXISTS template (tem_loc TEXT, tem_serverid INT, tem_iscore char(1))");
+  db.run("CREATE TABLE IF NOT EXISTS configuration (conf_tempid INT, conf_param TEXT, conf_value TEXT)");
+});
+/***** END DB setup *****/
+
+
+/***** FUNCTIONS *****/
+
+//Post callback function when adding a server
+function create_post_find_server(rows) {    
+  if(rows.length==0){
+    var stmt = db.prepare("INSERT INTO server VALUES (?,?)");
+    stmt.run(program.create,"STOPPED");
+    stmt.finalize();
+
+    db.get("SELECT last_insert_rowid() as last_id",function(err,rows){
+      console.log("Added server <%s> with id <%d>".bold, program.create.green, rows.last_id);
+      add_post_find_server(rows.last_id,"Y");
+    });
+    
+  }
+  else{
+    console.log("A server with name <".rainbow + program.create.bold + "> already exists in the db.".rainbow);
+    db.close();
+  }  
+}
+
+//Post callback function when removing a server
+function destroy_post_find_server(rows) {    
+  if(rows.length==0){
+    console.log("I couldn\'t find any server with name <".rainbow+program.destroy.bold+">".rainbow);
+  }
+  else{
+
+    db.all("SELECT rowid FROM template WHERE tem_serverid = ?", rows[0].rowid, function(err,items){
+      items.forEach(function(item){
+        db.run("DELETE FROM configuration where conf_tempid = ? ", item.rowid);
+        db.run("DELETE FROM template WHERE rowid = ?", item.rowid);
+      });
+    });
+
+    db.run("DELETE FROM server WHERE rowid = ?", rows[0].rowid, function(){
+      console.log('Server <%s> and all its templates were deleted'.bold,program.destroy.green);
+    });
+
+/*    db.run("DELETE FROM configuration where conf_tempid in (SELECT rowid FROM template WHERE tem_serverid = ", rows[0].rowid, function(){
+      db.run("DELETE FROM template WHERE tem_serverid = ?", rows[0].rowid, function(){
+        db.run("DELETE FROM server WHERE rowid = ?", rows[0].rowid, function(){
+          console.log('Server <%s> and all its templates were deleted'.bold,program.destroy.green);    
+          db.close();
+        });
+      });
+    });  
+    */  
+  }  
+}
+
+//Function to find an especific server which chains to next_function and last_function.
+function find_server(ser_name, next_function, last_function){
+  db.all("SELECT rowid,* FROM server where ser_name=?", [ser_name] , function(err, rows) {
+    if(last_function){
+      next_function(rows, last_function);
+    }
+    else{
+      next_function(rows);  
+    }
+  });
+}
+
+//Function used to fetch the list of all servers
+function find_all_servers(){
+
+  db.all("SELECT rowid, ser_name, ser_state FROM server", function(err, rows) {
+
+    console.log("List of SERVERS:".underline);
+    console.log("ID\tSTATE\tNAME".bold);
+    rows.forEach(function(item){
+      console.log("%d\t".green+"%s\t%s",item.rowid,(item.ser_state=="STOPPED"?"STOPPED".red:"STARTED".green),item.ser_name.blue);
+    });
+  });
+  db.close();
+}
+
+//Function for finding a template , then it continues with add_post_find_server or remove_post_find_server depending on the next_function
+function find_template_for_server(rows, next_function){
+  //console.log(arguments);
+  if(rows.length==0){
+    console.log("I couldn\'t find any server with that name.".rainbow);
+    db.close();      
+  }
+  else{
+    next_function(rows[0].rowid);  
+  }
+}
+
+//Function that add the template to that server
+function add_post_find_server(server_id, is_core) {
+  if(!is_core) is_core="N";
+  var stmt = db.prepare("INSERT INTO template VALUES (?,?,?)");
+  stmt.run(program.args[0], server_id, is_core);
+  stmt.finalize();    
+  //console.log(arguments);
+  console.log("Added template <%s> to server <%s>".bold, program.args[0].green, (""+server_id).green);
+  fs.readFile(program.args[0], 'utf-8', function (error, data) {
+    var patt=/<!.*!>/g;
+    res = data.match(patt)
+
+    if(res && res.length){
+      console.log("Found %s parameters in the template: ".bold, (""+res.length).red);
+      //console.log(res);
+      db.get("SELECT last_insert_rowid() as last_id",function(err,rows){
+        var confs_this_template = new Array();
+        for(i=0;i<res.length;i++){
+          //console.log(res[i].substring(2, res[i].length-2));
+          var param_name = res[i].substring(2, res[i].length-2);
+          console.log("-", param_name.blue);
+          if(confs_this_template.indexOf(param_name)==-1){
+            stmt = db.prepare("INSERT INTO configuration VALUES (?,?,?)"); //conf_tempid INT, conf_param TEXT, conf_value TEXT
+            stmt.run(rows.last_id, param_name, "");
+            stmt.finalize();
+            confs_this_template.push(param_name);
+          }
+        }
+      });
+    }
+    else{
+      console.log("WARNING:".rainbow + " No parameters found in the template ".bold);
+    }
+
+  });
+  db.close();      
+}
+
+//Function that removes the template from a server
+function remove_post_find_server(server_id) {    
+  db.run("DELETE FROM configuration where conf_tempid = ?",program.args[0]);  
+  db.run("DELETE FROM template where rowid = ?",program.args[0]);  
+  console.log('Removed template <%s> from server <%s>'.bold, program.args[0].green, program.remove.green);
+  db.close();
+}
+
+var find_alltemplates_rows;
+
+//Function that collects data from the server
+function find_alltemplates_for_server(rows){
+  if(rows.length==0){
+    console.log('I couldn\'t find any server with that name.'.rainbow);
+    db.close();
+  }
+  else{
+    console.log("\nSTRUCTURE\n".bold);
+
+    console.log("%d".green+"----".blue+" %s is %s".green,rows[0].rowid, rows[0].ser_name, (rows[0].ser_state=="STOPPED"?rows[0].ser_state.red:rows[0].ser_state.green));
+    db.all("SELECT rowid,* FROM template where tem_serverid=?", [rows[0].rowid] , function(err, rows) {
+      find_alltemplates_rows = rows;
+      printTemplateInfo(find_alltemplates_rows.shift());
+    });
+    db.close();
+  }
+}
+
+function printTemplateInfo(item_template){
+  if(item_template){
+        db.all("SELECT rowid,* FROM configuration where conf_tempid=?", [item_template.rowid] , function(err, rows_conf) { 
+          console.log("    |".blue);
+          console.log("    %s".yellow+"----".blue+" %s".yellow, item_template.rowid, item_template.tem_loc);
+          rows_conf.forEach(function(item_confg) {
+            console.log("    %s   |".blue, (find_alltemplates_rows.length==0?" ":"|"));
+            console.log("    %s   %s".cyan+"----".blue+" %s = %s", (find_alltemplates_rows.length==0?" ".blue:"|".blue), (""+item_confg.rowid).cyan, item_confg.conf_param.cyan, (item_confg.conf_value?item_confg.conf_value:"UNDEFINED".red.bold));
+          });
+          printTemplateInfo(find_alltemplates_rows.shift())
+        });
+  }
+  else{
+    console.log("");
+    return;
+  }
+}
+
+//Function for finding a specific configuration given its ID then calls the callback function
+function find_configuration(id_config, next_function){
+  db.all("SELECT rowid,* FROM configuration where rowid=?", id_config , function(err, rows) {
+    next_function(rows);
+  });
+}
+
+//Function to update the value when the id is found
+function update_configuration_value(rows){
+  if(rows && rows.length > 0){
+    db.run("UPDATE configuration SET conf_value = ? WHERE rowid = ?", program.args[0] ,program.setconf);
+    console.log("Configuration <%s> udpated correctly".bold,program.setconf.green);
+  }
+  else{
+    console.log("Couldn't find the configuration with id <".rainbow +program.setconf.bold +">".rainbow);
+  }
+  db.close();
+}
+
+//Function post find server
+function applyconf_post_find_server(rows){
+
+  if(rows.length==0){ console.log("Unable to find that server.".rainbow);return;}
+  
+  try{
+    var CONFIG = require(process.cwd()+"/"+program.args[0]);
+  }
+  catch(err){
+    try{
+      var CONFIG = require(program.args[0]);
+    }
+    catch(err){
+      console.log("BIG FAT ERROR! Help me please.. do something!".rainbow);
+      return;  
+    }
+  }
+
+  db.all("SELECT rowid, * FROM configuration WHERE conf_tempid IN (SELECT rowid FROM template WHERE tem_serverid = ?)", rows[0].rowid, function(err, rows) {
+    total_changes = 0;
+    rows.forEach(function(item){
+      //console.log(item.rowid, CONFIG.hasOwnProperty(item.conf_param), CONFIG[item.conf_param]);
+      if(CONFIG.hasOwnProperty(item.conf_param)){
+        db.run("UPDATE configuration SET conf_value = ? WHERE rowid = ?", CONFIG[item.conf_param], item.rowid);
+        total_changes++;
+      }
+    });
+    console.log("Configuration applied! Total changed items: %s".bold,(""+total_changes).green);
+    db.close();
+  });
+}
+
+var templates;
+var current_template;
+var current_server;
+var server_body;
+
+function generate_server_post_find_server(rows){
+  if(rows.length==0){ console.log("Unable to find that server.".rainbow);return;}
+  current_server = rows[0];
+  db.all("SELECT rowid, * FROM template where tem_serverid = ? ORDER BY tem_iscore ASC", rows[0].rowid, function(err, rows_templates){
+    current_template = "";
+    server_body = "";
+    templates = rows_templates;
+    processTemplates(templates.shift());
+  });
+}
+
+//This function will process all templates replacing the configuration params with the values for each of them and then generates a final nodejs server file.
+function processTemplates(item_template){
+  if(item_template){
+    //console.log(item_template);
+    db.all("SELECT rowid, * FROM configuration where conf_tempid = ? ", item_template.rowid, function(err, rows_configuration){  
+      current_template = fs.readFileSync(item_template.tem_loc, 'utf-8');
+      rows_configuration.forEach(function(item_conf){
+        current_template = current_template.replace(new RegExp("<!"+item_conf.conf_param+"!>",'gi'),item_conf.conf_value);
+      }); 
+      server_body += "\n\n/***** FROM TEMPLATE " + item_template.tem_loc + "******/\n\n" + current_template;
+      processTemplates(templates.shift());
+    });
+  }
+  else{
+    //console.log("its all done", server_body);
+    fs.writeFile("server_" +current_server.rowid+".js", server_body , function(err) {
+      if(err) {
+        console.log(err);
+      } else {
+        console.log("Server created on file ".bold + "server_".green+(""+current_server.rowid).green+".js".green);
+      }
+    }); 
+  }
+}
+
+//Function to start a server with Forever!
+function start_nodeserver(rows){
+  if(rows.length==0){ console.log("Unable to find that server.".rainbow);return;}
+  //if(rows[0].ser_state 0){ console.log("Unable to find that server.".rainbow);return;}
+  db.run("UPDATE server SET ser_state = ? WHERE rowid = ?", "STARTED", rows[0].rowid);
+  var util = require('util'), exec = require('child_process').exec, child;
+  child = exec("forever start server_"+rows[0].rowid+".js", function (error, stdout, stderr) {
+      console.log(stdout);
+      if (error !== null) {
+        console.log('exec error: ' + error.rainbow);
+      }
+      else{
+        console.log("Server started succesfully".bold);
+      }
+  });      
+}
+
+
+//Function to stop a server with Forever!
+function stop_nodeserver(rows){
+  if(rows.length==0){ console.log("Unable to find that server.".rainbow);return;}
+  db.run("UPDATE server SET ser_state = ? WHERE rowid = ?", "STOPPED", rows[0].rowid);
+  var util = require('util'), exec = require('child_process').exec, child;
+  child = exec("forever stop server_"+rows[0].rowid+".js", function (error, stdout, stderr) {
+      console.log(stdout);
+      if (error !== null) {
+        console.log('exec error: ' + error.rainbow);
+      }
+      else{
+        console.log("Server stopped succesfully".bold);
+      }
+  });      
+}
+
+var source_clone_server_id;
+var target_clone_server_id;
+var target_clone_template_id;
+var templates_to_clone;
+var configuration_to_clone;
+
+function clone_server_post_find(rows){
+  if(rows.length==0){ console.log("Unable to find that server".rainbow, program.clone.bold);return;}
+  //console.log(rows);
+
+  source_clone_server_id = rows[0].rowid;
+
+  var stmt = db.prepare("INSERT INTO server VALUES (?,?)");
+  stmt.run(program.args[0],"STOPPED");
+  stmt.finalize();
+
+  db.get("SELECT last_insert_rowid() as last_id",function(err,rows){
+
+    target_clone_server_id = rows.last_id;
+    //console.log(target_clone_server_id);
+
+    db.all("SELECT rowid,* FROM template where tem_serverid=?", source_clone_server_id , function(err, rows_templates) {
+      
+      templates_to_clone = rows_templates;
+      t_ids = "";
+      for(i=0;i<templates_to_clone.length;i++){
+        t_ids+=(t_ids==""?"":",")+templates_to_clone[i].rowid;
+      }
+      db.all("SELECT rowid,* FROM configuration where conf_tempid in ("+t_ids+")" , function(err, rows_configuration) {
+        configuration_to_clone = rows_configuration;
+        //console.log(templates_to_clone.length,configuration_to_clone.length);
+        for(var i=0;i<templates_to_clone.length;i++){
+          templates_to_clone[i].confs = new Array();
+          for(var j=0;j<configuration_to_clone.length;j++){
+            //console.log(i,j);
+            if(templates_to_clone[i].rowid == configuration_to_clone[j].conf_tempid){
+              templates_to_clone[i].confs.push(configuration_to_clone[j]);
+            }
+          }
+        }
+        clone_template(templates_to_clone.shift());
+      });      
+    });
+  });
+}
+
+//Function to clone a template and all its configurations
+function clone_template(template){
+  if(template){
+    var stmt = db.prepare("INSERT INTO template VALUES (?,?,?)");
+    //console.log(template.tem_loc, target_clone_server_id, template.tem_iscore);
+    stmt.run(template.tem_loc, target_clone_server_id, template.tem_iscore);
+    stmt.finalize();    
+    db.get("SELECT last_insert_rowid() as last_id",function(err,rows){
+      target_clone_template_id = rows.last_id;
+      //console.log(target_clone_template_id, template.confs);
+      configuration_to_clone = template.confs;
+      clone_configuration(configuration_to_clone.shift());
+    });  
+  }
+  else{
+    console.log("Server fully cloned!!".bold);
+  }
+}
+
+function clone_configuration(config){
+  //console.log(config);
+  db.run("INSERT INTO configuration VALUES (?,?,?)", target_clone_template_id, config.conf_param, config.conf_value, function(){
+    //console.log("configuration_to_clone.length="+configuration_to_clone.length);
+    if(configuration_to_clone.length==0){
+      clone_template(templates_to_clone.shift());
+    }
+    else{
+      clone_configuration(configuration_to_clone.shift());
+    }
+  });        
+}
+
+/***** END FUNCTIONS *****/
+
+/***** CLI DEFINITION *****/
+
+program
+.version('-0.42')
+.option('list', 'Get the list of all registered servers.')
+.option('create [server] [core_template]', 'Create [server] with [core_template].')
+.option('destroy [server]', 'Destroy [server] with specified name.')
+.option('add [server] [template]', 'Add the [template] to the existing [server].')
+.option('remove [server] [template]', 'Given a [template] ID (int) remove it from the [server]')
+.option('describe [server]', 'Show the details of a particular [server].')
+.option('stop [server]', 'Stop an active running server')
+.option('start [server]', 'Start a server')
+.option('setconf [conf_id] [value]', 'Given a [config] ID (int) of a conf, change the its value.')
+.option('applyconf [server] [conf_file]', 'Apply a configuration file to a server.')
+.option('compile [server]', 'Generate the physical NODEJS file as stem_<id>.js')
+.option('clone [source_server] [new_server]', 'Tool to fully clone a server.')
+
+.parse(process.argv);
+
+if (program.create){
+  if(!program.args[0]){console.log("You must specify a server base template.".rainbow);return};
+  find_server(program.create, create_post_find_server);
+}
+else if (program.destroy){
+  find_server(program.destroy, destroy_post_find_server);
+}
+else if (program.list){
+  find_all_servers();
+}
+else if (program.add){
+  if(!program.args[0]){console.log("You must specify a template to add.".rainbow);return};
+  find_server(program.add, find_template_for_server, add_post_find_server);
+}
+else if (program.remove){
+  if(!program.args[0]){console.log("You must specify a template to remove.".rainbow);return};
+  find_server(program.remove, find_template_for_server, remove_post_find_server);
+}
+else if (program.describe){
+  find_server(program.describe, find_alltemplates_for_server);  
+}
+else if (program.setconf){
+  if(!program.args[0]){console.log("You must specify a the config_id and new value.".rainbow);return};
+  find_configuration(program.setconf, update_configuration_value);  
+}
+else if (program.applyconf){
+  if(!program.args[0]){console.log("You must specify a config filenames.".rainbow);return};
+  var fs = require('fs');
+  //we check if the give "config file" exists
+  if(fs.existsSync(program.args[0])){ 
+    find_server(program.applyconf,applyconf_post_find_server);
+  }
+  else{
+    console.log("Couldn't find the template file <".rainbow + program.args[0].bold + ">");
+  }  
+}
+else if (program.compile){
+  if(!program.compile || program.compile===true){console.log("You must specify a server to compile.".rainbow);return};
+  find_server(program.compile, generate_server_post_find_server);  
+}
+else if (program.start) {
+  find_server(program.start, start_nodeserver);
+}
+else if (program.stop) {
+  find_server(program.stop, stop_nodeserver);
+}
+else if (program.clone) {
+  find_server(program.clone, clone_server_post_find);
+}
+else {
+  console.log("You must speficy at least one command. Use -h for help.".rainbow)
+}
+/***** END CLI DEFINITION *****/
