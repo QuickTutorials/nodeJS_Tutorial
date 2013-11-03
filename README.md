@@ -7,9 +7,10 @@
                          _/ |    <br/>
                         |__/     <br/>
 
-Curso introductorio a NodeJS | Noviembre 2013
+<h1>Curso introductorio a NodeJS | Noviembre 2013</h1>
 
-★ ¿Javascript en el lado del servidor? Ideas y principios de Node.js
+<ul>
+<li>★ ¿Javascript en el lado del servidor? Ideas y principios de Node.js</li>
 ★ Benchmarking: Apache vs Node.js 
 ★ Teoría de la programación en Javascript
 ★ Javascript, V8 and ECMA
@@ -21,5 +22,6 @@ Curso introductorio a NodeJS | Noviembre 2013
 ★ Otro IDE… en la nube
 ★ El estado del arte
 ★ Referencias y documentación
+<ul>
 
 BEEVA | www.beeva.com
