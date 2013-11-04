@@ -5,7 +5,7 @@ app.listen(3000);
 var credentials = require('./privateCredentials.json');
 
 /*
- * Saved in a json private file 
+ * Saved in a json private file:
 	{
 	"consumer_key": "....",
 	"consumer_secret": "....",
