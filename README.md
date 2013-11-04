@@ -12,7 +12,7 @@
 <li>Developing and debugging with Eclipse</li>
 <li>Otro IDE... en la nube</li>
 <li>El estado del arte</li>
-<li>Referencias y documentación</li>
+<li>Referencias y Documentación</li>
 <ul>
 
 BEEVA | www.beeva.com
