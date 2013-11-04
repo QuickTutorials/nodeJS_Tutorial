@@ -7,7 +7,7 @@ var insert_random_element=function(){
 	  port : 3306,
 	  database: 'node_test',
 	  user : 'root',
-	  password : 'admin'
+	  password : 'temporal'
 	});
 	connection.connect(function(err){
 		if(err != null){
@@ -20,7 +20,7 @@ var insert_random_element=function(){
 	            console.error("Query error:" + err);
 	        } else {
 		   try{
-	            console.log(rows[0]);
+	            //console.log(rows[0]);
 	            console.log("Success!");
 		   }catch(e){}
 		}
@@ -29,5 +29,5 @@ var insert_random_element=function(){
 }
 
 
-for(var i=50;i-->0;)insert_random_element();
+for(var i=100;i-->0;)insert_random_element();
 //process.exit(code=0)

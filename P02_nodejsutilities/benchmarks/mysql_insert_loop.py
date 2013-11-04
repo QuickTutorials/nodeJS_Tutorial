@@ -2,10 +2,10 @@
 
 import time,mysql.connector
 
-for i in xrange(50):
+for i in xrange(100):
 	conn = mysql.connector.connect(host= "localhost",
                   user="root",
-                  passwd="admin",
+                  passwd="temporal",
                   db="node_test")
 	try:
 		x = conn.cursor()
@@ -14,4 +14,4 @@ for i in xrange(50):
 		conn.close()
 		print "element inserted"
 	except:
-   		print "errorrrrrrrrrrrrrr"
+   		print "error"
