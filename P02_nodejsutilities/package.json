@@ -3,7 +3,10 @@
     "version"     : "0.0.1",
     "dependencies": {
         "http-proxy": ">= 0.10.3",
-        "connect"        : ">= 2.11.0",
+        "connect"        : ">= 2.7.8",
+  	"express":"2.5.4",
+  	"ntwitter":"0.2.10",
+	"lazy":">=1.0.11",
         "mkdirp"  : ">= 0.3.5"
     },
 
@@ -15,4 +18,3 @@
         "node": ">= 0.8.0"
     }
 }
-
