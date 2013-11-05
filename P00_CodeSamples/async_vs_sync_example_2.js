@@ -1,24 +1,17 @@
-http = require("http");
+var http = require("http");
 
-tiempo_inicial = new Date();
+var req = http.get("http://en.wikipedia.org/wiki/España", function(res) {
+    var pageData = "";
+    res.on('data', function(chunk) {
+        pageData += chunk;
+    });
 
-palabros = [ "arbol", "boca", "casa", "dedo", "eco", "fuego", "ganso" ]
+    res.on("error", function() {
+        console.log("error")
+    });
 
-total_respuestas = palabros.length;
-
-palabros.forEach(function(value, index) {
-	console.log(value, "INICIO");
-	http.get({
-		host : "es.wikipedia.org",
-		path : "/wiki/" + value
-	}, function(res) {
-		res.on('end', function() {
-			console.log(value, "FIN");
-			total_respuestas--;
-			if (total_respuestas == 0) {
-				tiempo_final = new Date();
-				console.log("Tiempo total:", tiempo_final.getTime()	- tiempo_inicial.getTime());
-			}
-		});
-	});
+    res.on('end', function() {
+        console.log(pageData);
+        console.log("end");
+    });
 });
