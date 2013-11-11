@@ -1,3 +1,6 @@
+# work as an script: chmod +x filename.js
+#!/usr/bin/env node
+
 var Lazy=require("lazy");
 new Lazy(process.stdin).lines.forEach(
           function(line) { 

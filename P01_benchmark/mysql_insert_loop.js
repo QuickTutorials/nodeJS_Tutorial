@@ -1,3 +1,6 @@
+# work as an script: chmod +x filename.js
+#!/usr/bin/env node
+
 var mysql = require('mysql');
 // Create a connection to MySql Server and Database
 
