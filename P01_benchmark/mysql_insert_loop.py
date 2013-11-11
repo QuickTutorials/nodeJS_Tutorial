@@ -1,3 +1,4 @@
+# work as an script: chmod +x filename.js
 #/usr/bin/env python
 
 import time,mysql.connector
