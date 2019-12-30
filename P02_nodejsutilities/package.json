@@ -4,7 +4,7 @@
     "dependencies": {
         "http-proxy": ">= 0.10.3",
         "connect"        : ">= 2.7.8",
-  	"express":"2.5.4",
+  	"express":"4.17.1",
   	"ntwitter":"0.2.10",
 	"lazy":">=1.0.11",
         "mkdirp"  : ">= 0.3.5"
