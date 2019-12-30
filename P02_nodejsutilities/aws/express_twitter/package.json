@@ -3,7 +3,7 @@
   "version":"0.0.1",
   "private":true,
   "dependencies":{
-  	"express":"2.5.4",
+  	"express":">=3.11.0",
   	"ntwitter":"0.2.10"
   }
 }
